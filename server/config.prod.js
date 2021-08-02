@@ -5,7 +5,7 @@ const spotify = {
 };
 
 const login = {
-  callback: process.env.CALLBACK_URL
+  callback: `${process.env.SERVER_URL}/auth/callback`
 };
 
 const genius = {

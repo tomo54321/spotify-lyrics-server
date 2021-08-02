@@ -13,7 +13,8 @@ if (isProd) {
 } else {
   settings = require('./server/config');
 }
-const host = process.env.RETURN_URL || 'http://localhost:8000';
+const host = process.env.FRONTEND_URL || 'http://localhost:3000';
+const serverurl = process.env.SERVER_URL || 'http://localhost:8000';
 
 // Set up Spotify api
 const SpotifyWebApi = require('spotify-web-api-node');
@@ -127,7 +128,7 @@ server.get('/api/previous', (req, res) => {
       .catch(err => {
         console.log('Error skipping to previous track:', err);
         if ([401, 403].includes(err.statusCode)) {
-          res.redirect(`${host}/auth/spotify`);
+          res.status(403).send({ auth: true });
         } else {
           res.status(err.statusCode).send({ error: err.statusCode });
         }
@@ -154,7 +155,7 @@ server.get('/api/next', (req, res) => {
       .catch(err => {
         console.log('Error skipping to next track:', err);
         if ([401, 403].includes(err.statusCode)) {
-          res.redirect(`${host}/auth/spotify`);
+          res.status(403).send({ auth: true });
         } else {
           res.status(err.statusCode).send({ error: err.statusCode });
         }
@@ -181,7 +182,7 @@ server.get('/api/pause', (req, res) => {
       .catch(err => {
         console.log('Error pausing:', err);
         if ([401, 403].includes(err.statusCode)) {
-          res.redirect(`${host}/auth/spotify`);
+          res.status(403).send({ auth: true });
         } else {
           res.status(err.statusCode).send({ error: err.statusCode });
         }
@@ -207,7 +208,7 @@ server.get('/api/play', (req, res) => {
       .catch(err => {
         console.log('Error playing:', err);
         if ([401, 403].includes(err.statusCode)) {
-          res.redirect(`${host}/auth/spotify`);
+          res.status(403).send({ auth: true });
         } else {
           res.status(err.statusCode).send({ error: err.statusCode });
         }
@@ -236,7 +237,7 @@ server.get('/api/seek', (req, res) => {
       .catch(err => {
         console.log('Error seeking:', err);
         if ([401, 403].includes(err.statusCode)) {
-          res.redirect(`${host}/auth/spotify`);
+          res.status(403).send({ auth: true });
         } else {
           res.status(err.statusCode).send({ error: err.statusCode });
         }
@@ -262,7 +263,7 @@ server.get('/api/getCurrentSong', (req, res) => {
       })
       .catch(err => {
         if (err.statusCode === 401) {
-          res.redirect(`${host}/auth/refresh`);
+          res.redirect(`${serverurl}/auth/refresh`);
         }
       });
   } else {
@@ -284,11 +285,11 @@ server.get('/auth/refresh', (req, res) => {
         maxAge: 1000 * 60 * 60 * 24 * 7,
         httpOnly: true
       });
-      res.redirect(`${host}`);
+      res.redirect(`${serverurl}/api/getCurrentSong`);
     },
     err => {
       console.log('Error refreshing token, kicking to /logout', err);
-      res.redirect(`${host}/logout`);
+      res.redirect(`${serverurl}/logout`);
     }
   );
 });
@@ -298,12 +299,6 @@ server.get(
     failureRedirect: '/'
   }),
   (req, res) => {
-    console.log('User logged in...');
-    res.cookie('loggedIn', true, {
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-      domain: "localhost",
-      httpOnly: false
-    });
     res.cookie('user.token', req.user.accessToken, {
       maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: true
@@ -315,6 +310,18 @@ server.get(
     res.redirect(`${process.env.RETURN_URL}`);
   }
 );
+server.get(
+  "/check-auth",
+  (req, res) => {
+    const cookies = req.cookies;
+    const token = cookies['user.token'];
+    if(token) {
+      return res.send({ access: true });
+    } else {
+      return res.send({ access: false });
+    }
+  }
+)
 server.get('/logout', (req, res) => {
   console.log('Logging out user...');
   req.logout();

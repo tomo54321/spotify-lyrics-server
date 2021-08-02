@@ -1,6 +1,6 @@
-# Spotify Karaoke
+# Lyrics for Spotify
 
-Hey guy, I've got **TWO QUESTIONS** for you. Do you like Spotify? Do you like singing karaoke? Well then prepare yourself for the surprise of your LIFE. It's Spotify Karaoke!
+Hey, I've got **TWO QUESTIONS** for you. Do you like Spotify? Do you like singing karaoke? Well then prepare yourself for the surprise of your LIFE. It's Spotify Karaoke!
 
 Remember a few years ago when the Spotify app had a `Lyrics` tab, and it was sync'd to the lyrics? It was a pretty great feature, but unfortunately they had to put an end to it, since they were licensing the service from a third-party. This is very expensive. Trust me, I checked.
 

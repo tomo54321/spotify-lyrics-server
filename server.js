@@ -13,7 +13,7 @@ if (isProd) {
 } else {
   settings = require('./server/config');
 }
-const host = process.env.HOST || 'http://localhost:8000';
+const host = process.env.RETURN_URL || 'http://localhost:8000';
 
 // Set up Spotify api
 const SpotifyWebApi = require('spotify-web-api-node');
@@ -35,7 +35,7 @@ server.use(
   })
 );
 server.use(cors({
-  origin: [ "http://localhost:3000" ],
+  origin: [ host ],
   credentials: true
 }))
 

@@ -1,10 +1,8 @@
+require("dotenv").config();
 const express = require('express');
-// const session = require('express-session');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const SpotifyStrategy = require('passport-spotify').Strategy;
-const bodyParser = require('body-parser');
-const lyricsFinder = require('lyrics-finder');
 const isProd = process.env.NODE_ENV === 'production';
 
 let settings = {};
@@ -24,24 +22,17 @@ const spotifyApi = new SpotifyWebApi({
 });
 
 /**
- * Setup for Login with spotify.
- * Most of this is setting up `express-sessions` to store data in a
- * Mongo database.
+ * Setup for Login with spotify and parsing the json requests
  */
 const server = express();
 server.use(cookieParser());
-server.use(bodyParser.json());
+server.use(express.json());
 server.use(
-  bodyParser.urlencoded({
+  express.urlencoded({
     extended: true
   })
 );
 
-if (isProd) {
-  server.use(express.static('./dist'));
-} else {
-  server.use(express.static('./public'));
-}
 server.use(passport.initialize());
 server.use(passport.session());
 
@@ -97,21 +88,7 @@ server.get('/api/getLyrics', async (req, res) => {
   const title = req.query.title;
 
   console.log(`Lyrics search: ${artist} - ${title}...`);
-  try {
-    const lyrics = (await lyricsFinder(artist, title)) || null;
-
-    if (!lyrics) {
-      throw new Error('No lyrics found');
-    }
-
-    console.log('Lyrics found.');
-    res.status(200).json({
-      lyrics
-    });
-  } catch (e) {
-    console.log(`Error occurred while searching: ${e}`);
-    res.status(404).send();
-  }
+  
 });
 
 server.get('/api/previous', (req, res) => {

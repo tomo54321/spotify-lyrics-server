@@ -299,6 +299,13 @@ server.get(
     failureRedirect: '/'
   }),
   (req, res) => {
+
+    res.cookie('loggedIn', true, {
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+      domain: "webscraft.net",
+      httpOnly: false
+    });
+
     res.cookie('user.token', req.user.accessToken, {
       maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: true
@@ -310,18 +317,7 @@ server.get(
     res.redirect(`${process.env.RETURN_URL}`);
   }
 );
-server.get(
-  "/check-auth",
-  (req, res) => {
-    const cookies = req.cookies;
-    const token = cookies['user.token'];
-    if(token) {
-      return res.send({ access: true });
-    } else {
-      return res.send({ access: false });
-    }
-  }
-)
+
 server.get('/logout', (req, res) => {
   console.log('Logging out user...');
   req.logout();
